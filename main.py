@@ -3,8 +3,9 @@ from scipy.io import arff
 import pandas as pd
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import StratifiedKFold
 from sklearn.feature_selection import SelectKBest, mutual_info_classif
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 
 # Constants definition
 K = [1, 3, 5, 9]
@@ -33,8 +34,17 @@ for count, value in enumerate(y):
 lb = LabelBinarizer()
 y = lb.fit_transform(y)
 
-# Creates a k fold cross validator with 10 splits
-skf = StratifiedKFold(n_splits=10, shuffle=True, random_state=GROUP_NUMBER)
+# Holds testing and training accuracy for each K (exercise 5.i)
+d_i = {
+    "train": [],
+    "test": []
+}
+
+# Holds testing and training accuracy for each K (exercise 5.ii)
+d_ii = {
+    "train": [],
+    "test": []
+}
 
 # --------------------------------------------------- QUESTION 5.i --------------------------------------------------- #
 
@@ -44,8 +54,31 @@ for k in K:
     # Selects the best k features using mutual information
     X_new = SelectKBest(mutual_info_classif, k=k).fit_transform(X, y.ravel())
 
-    # Creates tree with k max number of features and using information gain
+    # Creates tree with k max number of features
     tree = DecisionTreeClassifier(criterion="entropy", max_features=k)
+
+    # Gets train and test datasets
+    X_train, X_test, y_train, y_test = train_test_split(X_new, y, test_size=0.30, random_state=GROUP_NUMBER)
+
+    # Trains tree
+    tree.fit(X_train, y_train)
+
+    # Gets train and test accuracy and appends them to dictionary
+    acc_train = tree.score(X_train, y_train)
+    acc_test = tree.score(X_test, y_test)
+    d_i["train"].append(acc_train)
+    d_i["test"].append(acc_test)
+
+print(f"Dict 5.i: {d_i}\n")
+
+# Plots graph
+plt.plot(K, d_i["train"], marker='o')
+plt.plot(K, d_i["test"], marker='o')
+plt.title("Question 5.i")
+plt.legend(["train", "test"])
+plt.ylabel("Accuracy")
+plt.xlabel("K value")
+plt.show()
 
 # --------------------------------------------------- QUESTION 5.ii -------------------------------------------------- #
 
@@ -53,7 +86,30 @@ for k in K:
 for k in K:
 
     # Creates tree with k max depth
-    tree = DecisionTreeClassifier(max_depth=k)
+    tree = DecisionTreeClassifier(criterion="entropy", max_depth=k)
+
+    # Gets train and test datasets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=GROUP_NUMBER)
+
+    # Trains tree
+    tree.fit(X_train, y_train)
+
+    # Gets train and test accuracy and appends them to dictionary
+    acc_train = tree.score(X_train, y_train)
+    acc_test = tree.score(X_test, y_test)
+    d_ii["train"].append(acc_train)
+    d_ii["test"].append(acc_test)
+
+print(f"Dict 5.ii: {d_ii}\n")
+
+# Plots graph
+plt.plot(K, d_ii["train"], marker='o')
+plt.plot(K, d_ii["test"], marker='o')
+plt.title("Question 5.ii")
+plt.legend(["train", "test"])
+plt.ylabel("Accuracy")
+plt.xlabel("K value")
+plt.show()
 
 # ---------------------------------------------------- QUESTION 6 ---------------------------------------------------- #
 
