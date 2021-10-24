@@ -55,7 +55,7 @@ for k in K:
     X_new = SelectKBest(mutual_info_classif, k=k).fit_transform(X, y.ravel())
 
     # Creates tree with k max number of features
-    tree = DecisionTreeClassifier(criterion="entropy", max_features=k)
+    tree = DecisionTreeClassifier(criterion="gini", max_features=k)
 
     # Gets train and test datasets
     X_train, X_test, y_train, y_test = train_test_split(X_new, y, test_size=0.30, random_state=GROUP_NUMBER)
@@ -86,7 +86,7 @@ plt.show()
 for k in K:
 
     # Creates tree with k max depth
-    tree = DecisionTreeClassifier(criterion="entropy", max_depth=k)
+    tree = DecisionTreeClassifier(criterion="gini", max_depth=k)
 
     # Gets train and test datasets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=GROUP_NUMBER)
