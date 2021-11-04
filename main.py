@@ -5,7 +5,8 @@ from sklearn.preprocessing import LabelBinarizer
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.feature_selection import SelectKBest, mutual_info_classif
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
+import numpy as np
+from sklearn.model_selection import cross_validate, StratifiedKFold
 
 # Constants definition
 K = [1, 3, 5, 9]
@@ -46,6 +47,9 @@ d_ii = {
     "test": []
 }
 
+# Creates a k fold cross validator
+skf = StratifiedKFold(n_splits=10, shuffle=True, random_state=GROUP_NUMBER)
+
 # --------------------------------------------------- QUESTION 5.i --------------------------------------------------- #
 
 # Iterates over each number of selected features and creates a decision tree
@@ -57,15 +61,12 @@ for k in K:
     # Creates tree with k max number of features
     tree = DecisionTreeClassifier(criterion="gini", max_features=k)
 
-    # Gets train and test datasets
-    X_train, X_test, y_train, y_test = train_test_split(X_new, y, test_size=0.30, random_state=GROUP_NUMBER)
-
-    # Trains tree
-    tree.fit(X_train, y_train)
+    # Performs a cross validate to train and get accuracy values for this tree
+    values = cross_validate(tree, X_new, y, cv=skf, scoring="accuracy", return_train_score=True)
 
     # Gets train and test accuracy and appends them to dictionary
-    acc_train = tree.score(X_train, y_train)
-    acc_test = tree.score(X_test, y_test)
+    acc_train = np.mean(values["train_score"])
+    acc_test = np.mean(values["test_score"])
     d_i["train"].append(acc_train)
     d_i["test"].append(acc_test)
 
@@ -77,7 +78,7 @@ plt.plot(K, d_i["test"], marker='o')
 plt.title("Question 5.i")
 plt.legend(["train", "test"])
 plt.ylabel("Accuracy")
-plt.xlabel("K value")
+plt.xlabel("K selected features")
 plt.show()
 
 # --------------------------------------------------- QUESTION 5.ii -------------------------------------------------- #
@@ -88,15 +89,12 @@ for k in K:
     # Creates tree with k max depth
     tree = DecisionTreeClassifier(criterion="gini", max_depth=k)
 
-    # Gets train and test datasets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=GROUP_NUMBER)
-
-    # Trains tree
-    tree.fit(X_train, y_train)
+    # Performs a cross val
+    values = cross_validate(tree, X, y, cv=skf, scoring="accuracy", return_train_score=True)
 
     # Gets train and test accuracy and appends them to dictionary
-    acc_train = tree.score(X_train, y_train)
-    acc_test = tree.score(X_test, y_test)
+    acc_train = np.mean(values["train_score"])
+    acc_test = np.mean(values["test_score"])
     d_ii["train"].append(acc_train)
     d_ii["test"].append(acc_test)
 
@@ -108,7 +106,7 @@ plt.plot(K, d_ii["test"], marker='o')
 plt.title("Question 5.ii")
 plt.legend(["train", "test"])
 plt.ylabel("Accuracy")
-plt.xlabel("K value")
+plt.xlabel("K max tree depth")
 plt.show()
 
 # ---------------------------------------------------- QUESTION 6 ---------------------------------------------------- #
