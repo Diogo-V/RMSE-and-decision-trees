@@ -15,7 +15,7 @@ GROUP_NUMBER = 16  # Our group number
 # ----------------------------------------- PREPROCESSING AND DATA FILTERING ----------------------------------------- #
 
 # Loading dataset into working desk
-data = arff.loadarff('./data/breast.w.arff')
+data = arff.loadarff('./breast.w.arff')
 df = pd.DataFrame(data[0])
 
 # Removes NaN values from dataset by deleting rows
